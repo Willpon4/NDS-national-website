@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./nds-mobile.js"></script>
 <script src="./support.js"></script>
 </head>
 <body>
@@ -49,7 +50,7 @@ const NEWS=[
 const fmt=(v,p,n)=>Math.abs(v).toFixed(4)+(v<0?n:p);
 class Component extends DCLogic {
  state={sel:null,zoom:1,freq:'once',amt:100,dest:'national'};
- componentDidMount(){this._r=()=>this.setState({zoom:Math.min(1,window.innerWidth/1440)});window.addEventListener('resize',this._r);this._r();}
+ componentDidMount(){this._r=()=>this.setState({zoom:(window.innerWidth<=900?1:Math.min(1,window.innerWidth/1440))});window.addEventListener('resize',this._r);this._r();}
  componentWillUnmount(){window.removeEventListener('resize',this._r);}
  renderVals(){ const {freq,amt,dest}=this.state;const on='#fff',off='transparent';
   const amounts=[25,50,100,250,500,'other'].map(a=>({label:a==='other'?'Other':'$'+a,bg:a===amt?'#fff':'#0b1b23',fg:a===amt?'#0b1b23':'#fff',pick:()=>this.setState({amt:a})}));

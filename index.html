@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./nds-mobile.js"></script>
 <script src="./support.js"></script>
 </head>
 <body>
@@ -121,7 +122,7 @@ const NEWS=[
 const fmt=(v,p,n)=>Math.abs(v).toFixed(4)+(v<0?n:p);
 class Component extends DCLogic {
  state={sel:null,zoom:1};
- componentDidMount(){this._h=e=>this.setState({sel:e.detail});window.addEventListener('nds-select',this._h);this._r=()=>this.setState({zoom:Math.min(1,window.innerWidth/1440)});window.addEventListener('resize',this._r);this._r();}
+ componentDidMount(){this._h=e=>this.setState({sel:e.detail});window.addEventListener('nds-select',this._h);this._r=()=>this.setState({zoom:(window.innerWidth<=900?1:Math.min(1,window.innerWidth/1440))});window.addEventListener('resize',this._r);this._r();}
  componentWillUnmount(){window.removeEventListener('nds-select',this._h);window.removeEventListener('resize',this._r);}
  renderVals(){
   const sel=this.state.sel;const c=CHAPTERS.find(x=>x.id===sel)||null;

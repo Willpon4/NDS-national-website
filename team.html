@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./nds-mobile.js"></script>
 <script src="./support.js"></script>
 </head>
 <body>
@@ -42,7 +43,7 @@ const NEWS=[
 const fmt=(v,p,n)=>Math.abs(v).toFixed(4)+(v<0?n:p);
 class Component extends DCLogic {
  state={sel:null,zoom:1,freq:'once',amt:100,dest:'national'};
- componentDidMount(){this._r=()=>this.setState({zoom:Math.min(1,window.innerWidth/1440)});window.addEventListener('resize',this._r);this._r();}
+ componentDidMount(){this._r=()=>this.setState({zoom:(window.innerWidth<=900?1:Math.min(1,window.innerWidth/1440))});window.addEventListener('resize',this._r);this._r();}
  componentWillUnmount(){window.removeEventListener('resize',this._r);}
  renderVals(){ const fmt=(v,p,n)=>Math.abs(v).toFixed(4)+(v<0?n:p);return {zoom:this.state.zoom,chapters:CHAPTERS.map((x,i)=>({...x,idx:String(i+1).padStart(2,'0'),coord:fmt(x.lat,'N','S')+' '+fmt(x.lon,'E','W'),mail:x.id+'@natdefsoc.org'}))}; }
 }
