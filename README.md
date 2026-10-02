@@ -8,7 +8,7 @@ Static website for the National Defense Society (NDS). No build step, no depende
 |---|---|
 | `/` | `index.html` |
 | `/chapters` | `chapters.html` (interactive chapter map) |
-| `/donate` | `donate.html` |
+| `/sponsors` | `sponsors.html` |
 | `/team` | `team.html` |
 | `/welcome` | `welcome.html` |
 | `/contact` | `contact.html` |
@@ -58,7 +58,7 @@ Loaded at runtime from public CDNs:
 
 - Replace placeholder chapter site URLs on the Chapters page.
 - Replace `[ name surname ]` placeholders on Team and Contact.
-- Connect forms (Contact, Donate) to a backend or form service.
+- Connect forms (Contact, Sponsors giving form) to a backend or form service.
 
 ## License
 
@@ -66,4 +66,4 @@ Code is released under the MIT License. See `LICENSE`. NDS branding and photogra
 
 ## Archive
 
-`archive/` holds retired pages: `dispatch.html` (newsletter) and `about.html`. They stay in the repo but are excluded from deploys by `.vercelignore`, and `/dispatch` and `/about` redirect home. To bring one back, move it to the root, remove its redirect from `vercel.json`, and re-add its nav link.
+`archive/` holds retired pages: `dispatch.html` (newsletter), `about.html`, and `donate.html` (replaced by `sponsors.html`). They stay in the repo but are excluded from deploys by `.vercelignore`, `/dispatch` and `/about` redirect home, and `/donate` redirects to `/sponsors`. To bring one back, move it to the root, remove its redirect from `vercel.json`, and re-add its nav link.

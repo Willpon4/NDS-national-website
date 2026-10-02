@@ -11,6 +11,11 @@
       "source": "/about",
       "destination": "/",
       "permanent": false
+    },
+    {
+      "source": "/donate",
+      "destination": "/sponsors",
+      "permanent": false
     }
   ]
 }

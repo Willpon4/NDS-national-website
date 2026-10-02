@@ -164,6 +164,12 @@
         generic(el, vw);
       });
     });
+    // size map containers to the map's own aspect ratio
+    document.querySelectorAll('nds-map').forEach(function (m) {
+      var w = +m.getAttribute('width'), h = +m.getAttribute('height'), p = m.parentElement;
+      while (p && !(p.__mo && 'height' in p.__mo)) p = p.parentElement;
+      if (p && w && h) set(p, 'height', Math.round(p.clientWidth * h / w) + 'px');
+    });
     document.documentElement.style.overflowX = 'hidden';
   }
 
