@@ -7,7 +7,6 @@ Static website for the National Defense Society (NDS). No build step, no depende
 | Route | File |
 |---|---|
 | `/` | `index.html` |
-| `/about` | `about.html` |
 | `/chapters` | `chapters.html` (interactive chapter map) |
 | `/donate` | `donate.html` |
 | `/team` | `team.html` |
@@ -67,4 +66,4 @@ Code is released under the MIT License. See `LICENSE`. NDS branding and photogra
 
 ## Archive
 
-`archive/dispatch.html` is the retired newsletter page. It stays in the repo but is excluded from deploys by `.vercelignore`, and `/dispatch` redirects home. To bring it back, move it to the root and remove the redirect from `vercel.json`.
+`archive/` holds retired pages: `dispatch.html` (newsletter) and `about.html`. They stay in the repo but are excluded from deploys by `.vercelignore`, and `/dispatch` and `/about` redirect home. To bring one back, move it to the root, remove its redirect from `vercel.json`, and re-add its nav link.

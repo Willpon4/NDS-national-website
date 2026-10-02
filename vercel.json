@@ -2,6 +2,15 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "redirects": [
-    { "source": "/dispatch", "destination": "/", "permanent": false }
+    {
+      "source": "/dispatch",
+      "destination": "/",
+      "permanent": false
+    },
+    {
+      "source": "/about",
+      "destination": "/",
+      "permanent": false
+    }
   ]
 }
