@@ -13,7 +13,8 @@ const CH=[
 ];
 window.NDS_CHAPTERS=CH;
 const INK='#0b1b23',SLATE='#9bb0b5',RED='#c1121f';
-const CAMO=['#1f3a2a','#2c4a33','#3b5a3a','#4a6741','#5a7248','#33452e','#243d2c','#6b7b4a'];
+// State fills: steps between the brand ink (#0b1b23) and slate (#9bb0b5)
+const CAMO=['#15272f','#1b2f38','#213741','#283f49','#2f4852','#36505a','#3d5963','#44616b'];
 function loadScript(src,integrity){return new Promise((res,rej)=>{const s=document.createElement('script');s.src=src;s.integrity=integrity;s.crossOrigin='anonymous';s.onload=res;s.onerror=rej;document.head.appendChild(s);});}
 function libs(){
  if(!window.__ndsLibs){
@@ -62,13 +63,16 @@ class NdsMap extends HTMLElement{
   const first=!this._drawn;this._drawn=true;
   const defs=svg.append('defs');
   defs.append('filter').attr('id','nds-soft').attr('x','-5%').attr('y','-5%').attr('width','110%').attr('height','110%').append('feGaussianBlur').attr('stdDeviation',.6);
-  const sg=svg.append('g').attr('filter','url(#nds-soft)').selectAll('path').data(this.states).join('path').attr('d',this.path).attr('fill',d=>CAMO[(+d.id*7+3)%CAMO.length]).attr('fill-opacity',plot?.85:.9).attr('stroke',d=>CAMO[(+d.id*7+3)%CAMO.length]).attr('stroke-width',1.2);
-  svg.append('g').selectAll('path').data(this.states).join('path').attr('d',this.path).attr('fill','none').attr('stroke','#fff').attr('stroke-opacity',.14).attr('stroke-width',.5);
+  const sg=svg.append('g').attr('filter','url(#nds-soft)').selectAll('path').data(this.states).join('path').attr('d',this.path).attr('fill',d=>CAMO[(+d.id*7+3)%CAMO.length]).attr('fill-opacity',1).attr('stroke',d=>CAMO[(+d.id*7+3)%CAMO.length]).attr('stroke-width',1.2);
+  svg.append('g').selectAll('path').data(this.states).join('path').attr('d',this.path).attr('fill','none').attr('stroke',SLATE).attr('stroke-opacity',.35).attr('stroke-width',.6);
+  // hover highlight for the state under a pin
+  const hl=svg.append('path').attr('fill',SLATE).attr('fill-opacity',0).attr('stroke','#fff').attr('stroke-opacity',0).attr('stroke-width',1).style('pointer-events','none').style('transition','fill-opacity .35s, stroke-opacity .35s');
   if(first&&!matchMedia('(prefers-reduced-motion: reduce)').matches)sg.attr('opacity',0).transition().delay((d,i)=>200+((+d.id*37)%50)*18).duration(700).attr('opacity',1);
   // network lines from HQ
+  let ln=null;
   if(!plot){
    const hq=pts.find(p=>p.hq);
-   const ln=svg.append('g').selectAll('line').data(pts.filter(p=>!p.hq)).join('line')
+   ln=svg.append('g').selectAll('line').data(pts.filter(p=>!p.hq)).join('line')
     .attr('x1',hq.xy[0]).attr('y1',hq.xy[1]).attr('x2',d=>d.xy[0]).attr('y2',d=>d.xy[1])
     .attr('stroke',d=>d.id===sel?RED:'#fff').attr('stroke-opacity',d=>d.id===sel?.9:.35).attr('stroke-width',d=>d.id===sel?1.4:.8);
    if(first){ln.each(function(d){const L=Math.hypot(d.xy[0]-hq.xy[0],d.xy[1]-hq.xy[1]);d3.select(this).attr('stroke-dasharray',L).attr('stroke-dashoffset',L).transition().delay(1200+Math.random()*500).duration(1100).ease(d3.easeCubicOut).attr('stroke-dashoffset',0).on('end',function(){d3.select(this).attr('stroke-dasharray',null);});});}
@@ -76,19 +80,43 @@ class NdsMap extends HTMLElement{
   }
   // pins
   const self=this;
+  const stateOf=d=>this.states.find(f=>d3.geoContains(f,[d.lon,d.lat]));
+  const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
   const g=svg.append('g').selectAll('g').data(pts).join('g').attr('transform',d=>`translate(${d.xy[0]},${d.xy[1]})`).style('cursor','pointer')
-   .on('click',(e,d)=>{self.dispatchEvent(new CustomEvent('nds-select',{detail:d.id,bubbles:true,composed:true}));window.dispatchEvent(new CustomEvent('nds-select',{detail:d.id}));});
+   .on('click',(e,d)=>{self.dispatchEvent(new CustomEvent('nds-select',{detail:d.id,bubbles:true,composed:true}));window.dispatchEvent(new CustomEvent('nds-select',{detail:d.id}));})
+   .on('mouseenter',function(e,d){
+    d3.select(this).raise();
+    const m=this.querySelector('.nds-mk');if(m)m.style.transform='scale(1.7)';
+    d3.select(this).selectAll('.nds-lbl').attr('fill','#fff').style('transform','translateX('+(d.anchor==='end'?-8:8)+'px)');
+    const st=stateOf(d);if(st){hl.attr('d',self.path(st)).attr('fill-opacity',.28).attr('stroke-opacity',.6);}
+    if(!reduce){const b=d3.select(this).insert('circle',':first-child').attr('r',8).attr('fill','none').attr('stroke',d.id===sel?RED:'#fff').attr('stroke-width',1.2).style('pointer-events','none');
+     b.transition().duration(700).ease(d3.easeCubicOut).attr('r',34).attr('stroke-opacity',0).remove();}
+    ln&&ln.filter(x=>x.id===d.id).attr('stroke',RED).attr('stroke-opacity',.9);
+   })
+   .on('mouseleave',function(e,d){
+    const m=this.querySelector('.nds-mk');if(m)m.style.transform='';
+    d3.select(this).selectAll('.nds-lbl').attr('fill',x=>x.id===sel?'#fff':SLATE).style('transform','');
+    hl.attr('fill-opacity',0).attr('stroke-opacity',0);
+    ln&&ln.filter(x=>x.id===d.id&&x.id!==sel).attr('stroke','#fff').attr('stroke-opacity',.35);
+   });
+  // generous invisible hit area so small pins are easy to hover and tap
+  g.append('circle').attr('r',18).attr('fill','transparent');
+  const mk=g.append('g').attr('class','nds-mk').style('transition','transform .3s cubic-bezier(.2,.7,.2,1.4)').style('transform-origin','0 0');
   if(plot){
-   g.append('rect').attr('x',-6).attr('y',-6).attr('width',12).attr('height',12).attr('fill',d=>d.id===sel?RED:INK).attr('stroke',d=>d.id===sel?RED:SLATE).attr('stroke-width',1);
-   g.append('line').attr('x1',-12).attr('x2',-7).attr('stroke',SLATE);g.append('line').attr('x1',7).attr('x2',12).attr('stroke',SLATE);
-   g.append('line').attr('y1',-12).attr('y2',-7).attr('stroke',SLATE);g.append('line').attr('y1',7).attr('y2',12).attr('stroke',SLATE);
+   // slow ambient ping so the stations read as live
+   if(!reduce)g.each(function(d,i){const r=d3.select(this).insert('circle',':first-child').attr('r',6).attr('fill','none').attr('stroke',d.id===sel?RED:SLATE).attr('stroke-width',1).style('pointer-events','none');
+    r.append('animate').attr('attributeName','r').attr('values','6;22').attr('dur','3.2s').attr('begin',(i*.32)+'s').attr('repeatCount','indefinite');
+    r.append('animate').attr('attributeName','stroke-opacity').attr('values','.7;0').attr('dur','3.2s').attr('begin',(i*.32)+'s').attr('repeatCount','indefinite');});
+   mk.append('rect').attr('x',-6).attr('y',-6).attr('width',12).attr('height',12).attr('fill',d=>d.id===sel?RED:INK).attr('stroke',d=>d.id===sel?RED:SLATE).attr('stroke-width',1);
+   mk.append('line').attr('x1',-12).attr('x2',-7).attr('stroke',SLATE);mk.append('line').attr('x1',7).attr('x2',12).attr('stroke',SLATE);
+   mk.append('line').attr('y1',-12).attr('y2',-7).attr('stroke',SLATE);mk.append('line').attr('y1',7).attr('y2',12).attr('stroke',SLATE);
    const px=d=>d.anchor==='end'?-14:(d.anchor==='middle'?0:14),pa=d=>d.anchor||'start',py=d=>d.anchor==='middle'?(d.dy<0?-16:20):-6;
-   g.append('text').attr('x',px).attr('y',py).attr('text-anchor',pa).text(d=>d.name.toUpperCase()).attr('fill',d=>d.id===sel?'#fff':SLATE).attr('font-size',10).attr('font-family','Barlow, sans-serif').attr('font-weight',600).attr('letter-spacing','.08em');
-   g.append('text').attr('x',px).attr('y',d=>py(d)+12).attr('text-anchor',pa).text(d=>fmt(d.lat,'N','S')+'  '+fmt(d.lon,'E','W')).attr('fill',SLATE).attr('font-size',9).attr('font-family','Barlow, sans-serif').attr('opacity',.8);
+   g.append('text').attr('class','nds-lbl').style('transition','transform .3s cubic-bezier(.2,.7,.2,1)').attr('x',px).attr('y',py).attr('text-anchor',pa).text(d=>d.name.toUpperCase()).attr('fill',d=>d.id===sel?'#fff':SLATE).attr('font-size',10).attr('font-family','Barlow, sans-serif').attr('font-weight',600).attr('letter-spacing','.08em');
+   g.append('text').attr('class','nds-lbl').style('transition','transform .3s cubic-bezier(.2,.7,.2,1)').attr('x',px).attr('y',d=>py(d)+12).attr('text-anchor',pa).text(d=>fmt(d.lat,'N','S')+'  '+fmt(d.lon,'E','W')).attr('fill',SLATE).attr('font-size',9).attr('font-family','Barlow, sans-serif').attr('opacity',.8);
   }else{
    g.each(function(d,i){const r=d3.select(this).append('circle').attr('r',6).attr('fill','none').attr('stroke',d.id===sel?RED:'#fff').attr('stroke-width',1);r.append('animate').attr('attributeName','r').attr('values','6;26').attr('dur','2.6s').attr('begin',(i*.26)+'s').attr('repeatCount','indefinite');r.append('animate').attr('attributeName','stroke-opacity').attr('values','.6;0').attr('dur','2.6s').attr('begin',(i*.26)+'s').attr('repeatCount','indefinite');});
-   g.append('circle').attr('r',d=>d.id===sel?16:(d.hq?11:9)).attr('fill','none').attr('stroke',d=>d.id===sel?RED:'#fff').attr('stroke-opacity',d=>d.id===sel?.8:.3);
-   g.append('circle').attr('r',d=>d.id===sel?6:(d.hq?5:4)).attr('fill',d=>d.id===sel?RED:'#fff');
+   mk.append('circle').attr('r',d=>d.id===sel?16:(d.hq?11:9)).attr('fill','none').attr('stroke',d=>d.id===sel?RED:'#fff').attr('stroke-opacity',d=>d.id===sel?.8:.3);
+   mk.append('circle').attr('r',d=>d.id===sel?6:(d.hq?5:4)).attr('fill',d=>d.id===sel?RED:'#fff');
    g.append('text').attr('x',d=>d.hq?0:(d.dx||0)).attr('y',d=>(d.dx!=null&&!d.hq)?(d.dy||0)+4:(d.id===sel?-24:-19)).attr('text-anchor',d=>d.hq?'middle':(d.anchor||'middle')).text(d=>d.name).attr('fill','#fff').attr('opacity',d=>(sel&&d.id!==sel)?.55:1).attr('font-size',d=>d.id===sel?15:12).attr('font-family','Barlow, sans-serif').attr('font-weight',500);
   }
  }
