@@ -23,6 +23,7 @@ index.html, about.html, …   Pages
 support.js                  Page runtime (renders each page)
 nds-motion.js               Site-wide animations
 nds-map.js                  Chapter map (Chapters page)
+nds-flag.js                 Waving flag behind the home page hero
 nds-mobile.js               Mobile layout for screens 900px and narrower
 assets/                     Logo and photos
 vercel.json                 Clean URLs (/about instead of /about.html)
