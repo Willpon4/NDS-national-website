@@ -23,9 +23,9 @@ index.html, about.html, …   Pages
 support.js                  Page runtime (renders each page)
 nds-motion.js               Site-wide animations
 nds-map.js                  Chapter map (Chapters page)
-nds-flag.js                 Waving flag behind the home page hero
 nds-mobile.js               Mobile layout for screens 900px and narrower
-assets/                     Logo and photos
+assets/                     Logo, photos, sponsor logos, board headshots
+get-assets.sh               Downloads sponsor logos and headshots from natdefsoc.org into assets/
 vercel.json                 Clean URLs (/about instead of /about.html)
 archive/                    Retired pages (not deployed; see .vercelignore)
 ```
@@ -58,7 +58,9 @@ Loaded at runtime from public CDNs:
 ## To do
 
 - Replace placeholder chapter site URLs on the Chapters page.
-- Replace `[ name surname ]` placeholders on Team and Contact.
+- Replace `[ name surname ]` placeholders on Contact.
+- Add a mailing address to the Sponsors page (check/DAF giving).
+- Add sponsor names as alt text on the sponsor logos.
 - Connect forms (Contact, Sponsors giving form) to a backend or form service.
 
 ## License

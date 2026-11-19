@@ -40,7 +40,7 @@
     set(h, 'display', 'flex'); set(h, 'flex-wrap', 'wrap'); set(h, 'align-items', 'stretch');
     set(h, 'position', 'sticky'); set(h, 'top', '0'); set(h, 'z-index', '50'); set(h, 'background', '#0b1b23');
     set(logo, 'flex', '1 1 0'); set(logo, 'min-width', '0'); set(logo, 'order', '1'); set(logo, 'padding', '10px 16px'); set(logo, 'gap', '12px'); set(logo, 'border-right', '0');
-    var img = logo.querySelector('img'); if (img) { set(img, 'width', '40px'); set(img, 'height', '40px'); }
+    var img = logo.querySelector('img'); if (img) { set(img, 'height', '44px'); set(img, 'width', 'auto'); }
     var sp = logo.querySelectorAll('span span');
     if (sp[0]) set(sp[0], 'font-size', '26px');
     if (sp[1]) { set(sp[1], 'font-size', '9px'); set(sp[1], 'letter-spacing', '.12em'); set(sp[1], 'line-height', '1.3'); set(sp[1], 'white-space', 'normal'); }
